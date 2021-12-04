@@ -1,0 +1,46 @@
+public with sharing class httpZoomController { 
+    @AuraEnabled
+    public static List<Contact> getContact(String soql) {
+        List<Contact> result = Database.query(soql);
+        return result;
+    }
+    
+    @AuraEnabled
+    public static String getWebinarParticipants(string JWT, String webinarId){
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('https://api.zoom.us/v2/webinars/' + webinarId + '/registrants');
+        req.setMethod('GET'); 
+        
+        String authorizationHeader = 'Bearer ' + JWT;
+        req.setHeader('Authorization', authorizationHeader);            
+        req.setHeader('Content-Type', 'application/json');
+        
+        Http h = new Http();
+        HttpResponse res = h.send(req);
+        
+        String result = res.getBody();
+        system.debug(result);
+        return result;
+    }
+    
+    @AuraEnabled
+    public static String postWebinarParticipant(string JWT, String webinarId, String json){
+        
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('https://api.zoom.us/v2/webinars/' + webinarId + '/registrants');
+        req.setMethod('POST'); 
+        
+        String authorizationHeader = 'Bearer ' + JWT;
+        req.setHeader('Authorization', authorizationHeader);            
+        req.setHeader('Content-Type', 'application/json');
+        req.setHeader('Content-Length', String.valueOf(json.length()));
+        req.setBody(json);
+        
+        Http h = new Http();
+        HttpResponse res = h.send(req);
+        
+        String result = res.getBody();
+        system.debug(result);
+        return result;
+    }
+}
